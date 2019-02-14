@@ -4,10 +4,12 @@ Baud Rate: 9600
 Python: send Arduino the line
 COLLECT <length in seconds>
 to turn on Arduino and collect for that length of time
+can send "COLLECT 0" to collect indefinitely (need to implement)
 
 also may send Arduino
 INTERRUPT
 to turn off the Arduino early. (need to implement)
+
 
 While the geiger counter is on, the Arduino will send back
 COUNT <timestamp>
