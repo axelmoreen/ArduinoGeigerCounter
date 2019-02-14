@@ -4,14 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-
+text_vheight = 0.8
+margin = -2
 class TimestampHistogram:
-    def __init__(self, sample_length=5000, bin_size=20, bin_start=0):
+    def __init__(self, sample_length=5000, bin_size=20):
         self.sample_length = sample_length
         self.samples = []
         self.points = []
         self.bin_size = bin_size
-        self.bin_start = bin_start
         self.set_start_now()
 
     def flush_data(self):
@@ -44,14 +44,21 @@ class TimestampHistogram:
 
     def display_histogram_and_fit_curve(self):
         countrate = []
+        total = 0
+        num_g = 0
         for group in self.samples:
             if (len(group) == 0):
                 continue
             # print(group)
             # print("Length: " +str(len(group)))
-            countrate.append(1000 * len(group) / self.sample_length )
+            countrate.append(len(group) )
+            total += len(group)
+            num_g += 1
+
         print("Sampled count rates: ")
         print(countrate)
+        self.bin_start = self.bin_size * int(round(np.amin(countrate) / self.bin_size))
+
         n = self.bin_start
         bin_array = []
         bin_max = self.bin_start
@@ -62,7 +69,7 @@ class TimestampHistogram:
 
         out = plt.hist(countrate, bins=bin_array, edgecolor='black', linewidth='0.8')
         plt.title('Histogram of Counts')
-        plt.xlabel('Count Rate (counts/second)')
+        plt.xlabel('Counts (counts)')
         plt.ylabel('Frequency')
 
 
@@ -72,18 +79,29 @@ class TimestampHistogram:
 
         centers = out[1][:-1] + np.diff(out[1]) /2
 
-        n = len(centers)  # the number of data
-        mean = sum(centers * out[0]) / n  # note this correction
-        sigma = sum(out[0] * (centers - mean) ** 2) / n  # note this correction
-
+        n = len(centers)
+        # mean = sum(centers * out[0]) / n
+        mean = total / num_g
+        sigma = sum(out[0] * (centers - mean) ** 2) / n
+        print("Mean: ", mean, ", Sigma: ", sigma)
         print("Centers")
         print(centers)
-        param, popt = curve_fit(gaussian_function, centers, out[0], p0=[1, mean, sigma, 1])
+        # a = 1/(sigma * sqrt(2pi)) for normalized gaussian
+        param, pcov = curve_fit(gaussian_function, centers, out[0], p0=[1, mean, sigma, 1])
         print("A * exp(-(x-b)^2/C^2)+D")
         print(param)
 
         x = np.linspace(self.bin_start, bin_max, 100)
         y = gaussian_function(x, param[0], param[1], param[2], param[3])
+        ymax = np.amax(out[0])
+        plt.text(bin_max - margin, ymax, "Curve Fit:")
+        plt.text(bin_max - margin, ymax - text_vheight, "A * exp(-(x-b)^2/C^2)+D")
+        plt.text(bin_max - margin, ymax - (2 * text_vheight), "A=%3.f" % param[0] + ", B=%3.f" % param[1] + ", C=%3.f" % param[2] + ", D=%3.f" % param[3])
+
+        error = np.sqrt(np.diag(pcov))
+        print(error)
+
+        plt.text(bin_max - margin, ymax - (3 * text_vheight), "σ=" + np.array2string(error, precision=3))
 
         plt.plot(x,y)
         plt.show()
