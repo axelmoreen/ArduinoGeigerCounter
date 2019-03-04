@@ -15,6 +15,7 @@ void count_ISR(){
 void start_collection(int collection_length){
   on = true;
   digitalWrite(powerPin, HIGH);
+  Serial.println("DURATION "+collection_length);
   delay(500);
   start = millis();
   finish = start + (1000 * collection_length);

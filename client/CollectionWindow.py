@@ -10,6 +10,7 @@ class CollectionWindow(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.master = master
+        self.window_type = "go";
 
         self.thread_queue = queue.Queue()
         master.title("Geiger Counter Collection")
@@ -20,19 +21,22 @@ class CollectionWindow(tk.Frame):
         self.update_window_type()
 
         self.pack(padx=10, pady=10)
+        self.update_status()
     def update_window_type(self):
-        if connection.collecting:
+
+        if connection.collecting & (self.window_type == "go"):
+            self.window_type = "diagnostic"
             self.go.pack_forget()
             self.diagnostic.pack()
 
-        else:
+        elif connection.collecting == False & (self.window_type == "diagnostic"):
+            self.window_type = "go"
             self.diagnostic.pack_forget()
             self.go.pack()
     def update_status(self):
         try:
             while self.thread_queue.qsize():
-                self.res = self.thread_queue.get(0)
-                connection = self.res
+                connection = self.thread_queue.get(0)
         except queue.Empty:
             pass
         finally:
@@ -46,7 +50,7 @@ class CollectionGo(tk.Frame):
         text = "Connect to a device to begin collection."
         c = connection.connected
         if c:
-            text = "Connected on "+connection.connection_string
+            text = "Connected on COM3"
         self.collectionString = Label(self, text=text);
         self.collectionString.grid(row = 0, columnspan=2, pady=(0,20))
         c = connection.connected
@@ -70,7 +74,7 @@ class CollectionDiagnostic(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
 
-        self.connectedString = Label(self, text="Collecting on "+connection.connection_string)
+        self.connectedString = Label(self, text="Collecting on COM3")
         self.connectedString.grid(row=0, pady=(0,25))
 
         self.elapsedString = Label(self, text="Elapsed: %i seconds" % connection.time_elapsed)
