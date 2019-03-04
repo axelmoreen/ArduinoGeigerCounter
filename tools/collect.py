@@ -34,6 +34,8 @@ def main():
         ser.write(bytes("COLLECT " + length, "UTF-8"))
         while ser.isOpen():
             line = ser.readline().decode("UTF-8", errors="ignore").strip()
+            if not line:
+                continue
             out += line + "\n"
             print(line)
             if "END" in line:
