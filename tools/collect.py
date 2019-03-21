@@ -29,11 +29,11 @@ def main():
     length = timestring.split("=")[1]
     try:
         ser = serial.Serial(port="COM3", baudrate=9600, timeout=5)
-        time.sleep(3)
+        time.sleep(4)
         print("Connected")
-        ser.write(bytes("COLLECT " + length, "UTF-8"))
+        ser.write(bytes("COLLECT " + length, "ascii"))
         while ser.isOpen():
-            line = ser.readline().decode("UTF-8", errors="ignore").strip()
+            line = ser.readline().decode("ascii", errors="ignore").strip()
             if not line:
                 continue
             out += line + "\n"

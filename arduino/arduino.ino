@@ -1,24 +1,34 @@
 const byte inputPin = 2;
 const byte powerPin = 3;
-long start;
+unsigned long start;
 
 boolean on = false;
-long finish;
+unsigned long finish;  
 
 void count_ISR(){
-  long c = millis();
+  unsigned long c = millis();
+
+  if (c >= finish && finish != 0){
+    finish_collection();
+  }
   Serial.print("COUNT ");
   Serial.print(c);
   Serial.println("");
 }
 
-void start_collection(int collection_length){
+void start_collection(long collection_length){
   on = true;
   digitalWrite(powerPin, HIGH);
-  Serial.println("DURATION "+collection_length);
-  delay(500);
+  delay(1000);
+  Serial.print("DURATION ");
+  Serial.print(collection_length);
+  Serial.println("");
+
   start = millis();
-  finish = start + (1000 * collection_length);
+  finish = (start + (1000 * collection_length));
+  Serial.print("WILLFINISH ");
+  Serial.print(finish);
+  Serial.println("");
   Serial.print("START ");
   Serial.print(start);
   Serial.println("");  
@@ -42,6 +52,7 @@ void loop() {
   if (on && millis() >= finish){
     finish_collection();
   }
+  digitalWrite(powerPin, on ? HIGH : LOW);
   if (Serial.available()){
     String in = Serial.readString();
 
@@ -54,12 +65,12 @@ void loop() {
         collection_length = 0;
       }
       else{ 
-        collection_length = num.toInt();
+        collection_length = (unsigned long)num.toInt();
       }
       start_collection(collection_length);
     }
 
   }
   
-  digitalWrite(powerPin, on ? HIGH : LOW);
+
 }
