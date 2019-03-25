@@ -33,25 +33,26 @@ class TimestampHistogram:
 
     def group_samples(self):
         self.samples.clear()
+        maxtime = np.amax(self.points) - self.start;
+        n_groups = math.ceil(maxtime/self.sample_length)
+        print("Num groups ",n_groups)
+        self.samples = [[]] * n_groups
         for p in self.points:
             group = math.floor((p - self.start) / self.sample_length)
-            if not group in self.samples:
-                self.samples.append([])
-            # print(str(p) +", "+str(group))
-            # print(self.samples[group])
-            (self.samples[group]).append(p)
-            # print(len(self.samples[group]))
+            self.samples[group].append(p)
 
     def display_histogram_and_fit_curve(self):
         countrate = []
         total = 0
         num_g = 0
-        for group in self.samples:
+        for i in range(0, len(self.samples)):
+            group = self.samples[i]
+            if not group: continue
             if (len(group) == 0):
                 continue
-            # print(group)
-            # print("Length: " +str(len(group)))
-            countrate.append(len(group) )
+            #print(i)
+            #print(i,"Length: " +str(len(group)))
+            countrate.append(len(group))
             total += len(group)
             num_g += 1
 
@@ -67,6 +68,7 @@ class TimestampHistogram:
             n += self.bin_size
             bin_max = n
 
+        print(self.bin_start, bin_array)
         out = plt.hist(countrate, bins=bin_array, edgecolor='black', linewidth='0.8')
         plt.title('Histogram of Counts')
         plt.xlabel('Counts (counts)')

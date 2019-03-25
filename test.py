@@ -1,4 +1,4 @@
-from TimestampHistogram import TimestampHistogram
+from tools.geiger.TimestampHistogram import TimestampHistogram
 import time
 import random
 

@@ -7,10 +7,7 @@ unsigned long finish;
 
 void count_ISR(){
   unsigned long c = millis();
-
-  if (c >= finish && finish != 0){
-    finish_collection();
-  }
+  
   Serial.print("COUNT ");
   Serial.print(c);
   Serial.println("");
@@ -26,7 +23,7 @@ void start_collection(long collection_length){
 
   start = millis();
   finish = (start + (1000 * collection_length));
-  Serial.print("WILLFINISH ");
+ // Serial.print("WILLFINISH ");
   Serial.print(finish);
   Serial.println("");
   Serial.print("START ");
