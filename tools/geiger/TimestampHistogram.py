@@ -36,7 +36,7 @@ class TimestampHistogram:
         maxtime = np.amax(self.points) - self.start;
         n_groups = math.ceil(maxtime/self.sample_length)
         print("Num groups ",n_groups)
-        self.samples = [[]] * n_groups
+        self.samples = [[] for i in range(n_groups)]
         for p in self.points:
             group = math.floor((p - self.start) / self.sample_length)
             self.samples[group].append(p)
@@ -50,13 +50,12 @@ class TimestampHistogram:
             if not group: continue
             if (len(group) == 0):
                 continue
-            #print(i)
-            #print(i,"Length: " +str(len(group)))
+
             countrate.append(len(group))
             total += len(group)
             num_g += 1
 
-        print("Sampled count rates: ")
+        print("Sampled counts: ")
         print(countrate)
         self.bin_start = self.bin_size * int(round(np.amin(countrate) / self.bin_size))
 
@@ -88,7 +87,7 @@ class TimestampHistogram:
         print("Mean: ", mean, ", Sigma: ", sigma)
         print("Centers")
         print(centers)
-        # a = 1/(sigma * sqrt(2pi)) for normalized gaussian
+
         param, pcov = curve_fit(gaussian_function, centers, out[0], p0=[1, mean, sigma, 1])
         print("A * exp(-(x-b)^2/C^2)+D")
         print(param)
@@ -96,14 +95,14 @@ class TimestampHistogram:
         x = np.linspace(self.bin_start, bin_max, 100)
         y = gaussian_function(x, param[0], param[1], param[2], param[3])
         ymax = np.amax(out[0])
-        plt.text(bin_max - margin, ymax, "Curve Fit:")
-        plt.text(bin_max - margin, ymax - text_vheight, "A * exp(-(x-b)^2/C^2)+D")
-        plt.text(bin_max - margin, ymax - (2 * text_vheight), "A=%3.f" % param[0] + ", B=%3.f" % param[1] + ", C=%3.f" % param[2] + ", D=%3.f" % param[3])
+        #plt.text(bin_max - margin, ymax, "Curve Fit:")
+        #plt.text(bin_max - margin, ymax - text_vheight, "A * exp(-(x-b)^2/C^2)+D")
+        #plt.text(bin_max - margin, ymax - (2 * text_vheight), "A=%3.f" % param[0] + ", B=%3.f" % param[1] + ", C=%3.f" % param[2] + ", D=%3.f" % param[3])
 
-        error = np.sqrt(np.diag(pcov))
-        print(error)
+        #error = np.sqrt(np.diag(pcov))
+        #print(error)
 
-        plt.text(bin_max - margin, ymax - (3 * text_vheight), "σ=" + np.array2string(error, precision=3))
+        #plt.text(bin_max - margin, ymax - (3 * text_vheight), "σ=" + np.array2string(error, precision=3))
 
         plt.plot(x,y)
         plt.show()

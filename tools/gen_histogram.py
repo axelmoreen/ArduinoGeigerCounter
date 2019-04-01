@@ -29,7 +29,8 @@ def main():
 
             if "START" in line:
                 started = True
-                h.set_start(int(line.split(" ")[1]))
+                when = int(line.split(" ")[1])
+                h.set_start(when)
                 #print("Started")
 
             if "END" in line:
